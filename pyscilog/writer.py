@@ -4,7 +4,7 @@ from typing import Set, Any
 
 class Writer:
     """A default writer logs messages to a logger"""
-    __print_once_keys: Set[Any] = []
+    __print_once_keys: Set[Any] = set()
 
     def __init__(self, logger, level, color=None, bold=None):
         self.logger = logger

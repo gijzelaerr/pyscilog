@@ -8,11 +8,6 @@ from pyscilog.state import State
 
 state = State()
 
-state['subprocess_label'] = None
-state['parent_process'] = psutil.Process(os.getpid())
-state['log_memory_totals'] = True
-state['log_memory_types'] = None, "rss vms".split(), "rss pss".split()
-
 GB = float(1024 ** 3)
 
 

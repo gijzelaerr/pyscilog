@@ -5,12 +5,8 @@ from pyscilog.state import State
 
 state = State()
 
-# global verbosity levels (used for loggers for which an explicit level is not set)
-state['verbosity'] = 0
-state['log_verbosity'] = None
 
-
-def set_verbosity(verbosity: Union[int, List[int]]):
+def set_verbosity(verbosity: Union[int, List[int], str]):
     if verbosity is None:
         state['verbosity'] = 0
         return
@@ -35,7 +31,7 @@ def set_verbosity(verbosity: Union[int, List[int]]):
             logger(0, "green").print("set console verbosity level {}={}".format(m.group(1), level))
 
 
-def get_verbosity(verbosity: int):
+def get_verbosity(verbosity: Union[List[int], int, str]):
     if verbosity is None:
         state['log_verbosity'] = None  # None means follow console default
         return

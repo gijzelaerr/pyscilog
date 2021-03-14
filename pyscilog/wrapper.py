@@ -60,7 +60,6 @@ class LoggerWrapper:
         self.log_verbosity(log_verbose if log_verbose is not None else state['log_verbosity'])
 
         # other init
-
         self.logger.addHandler(self.console_handler)
         self.logger.addHandler(self.logfile_handler)
         self.logger.addFilter(log_filter)
