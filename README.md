@@ -1,0 +1,2 @@
+# pyscilog
+Python scientific logger
