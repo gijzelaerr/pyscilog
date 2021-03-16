@@ -51,7 +51,7 @@ class LoggerWrapper:
         self.console_handler = logging.StreamHandler(sys.stderr)
         self.console_handler.setFormatter(_console_formatter)
 
-        self.logfile_handler = logging.handlers.MemoryHandler(1, logging.DEBUG, state['_file_handler'] or null_handler)
+        self.logfile_handler = logging.handlers.MemoryHandler(1, logging.DEBUG, state['file_handler'] or null_handler)
         self.logfile_handler.setFormatter(_logfile_formatter)
 
         # set verbosity levels
@@ -138,7 +138,7 @@ class LoggerWrapper:
 
 
 def log_to_file(filename, append=False):
-    if not state['_file_handler']:
+    if not state['file_handler']:
         _file_handler = logging.FileHandler(filename, mode='a' if append else 'w')
         _file_handler.setLevel(logging.DEBUG)
         _file_handler.setFormatter(_logfile_formatter)

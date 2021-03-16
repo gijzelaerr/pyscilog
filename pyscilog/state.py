@@ -22,7 +22,7 @@ state = State()
 state['silent'] = False
 
 # this will be the handler for the log file
-state['_file_handler'] = None
+state['file_handler'] = None
 
 # dict of logger wrappers created by the application
 state['loggers'] = {}
