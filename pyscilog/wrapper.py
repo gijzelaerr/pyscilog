@@ -138,7 +138,7 @@ class LoggerWrapper:
 
 
 def log_to_file(filename, append=False):
-    if not state['_file_handler']:
+    if not state['file_handler']:
         _file_handler = logging.FileHandler(filename, mode='a' if append else 'w')
         _file_handler.setLevel(logging.DEBUG)
         _file_handler.setFormatter(_logfile_formatter)
