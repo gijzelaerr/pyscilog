@@ -14,7 +14,7 @@ packages = find_packages(exclude=['tests'])
 
 
 setup(
-    name="pyschilog",
+    name="pyscilog",
     version="0.1.2",
     author="Gijs Molenaar",
     author_email="gijs@pythonic.nl",
