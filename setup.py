@@ -29,7 +29,8 @@ setup(
     ],
     python_requires='>=3.6',
     extras_require=extras_require,
-    install_requires=['psutil'],
+    install_requires=['psutil',
+                      'dataclasses'],
     tests_require=tests_require,
     test_suite="tests",
 )
