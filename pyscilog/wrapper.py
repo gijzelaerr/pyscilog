@@ -125,7 +125,56 @@ class LoggerWrapper:
         """
         Wrapper for log.exception
         """
-        Writer(self.logger, logging.EXCEPTION, color=color).write(msg, print_once=print_once)
+        Writer(self.logger, logging.ERROR, color=color).write(msg, print_once=print_once)
+
+    def error_and_raise(self, msg, exception_class=Exception, color="red", print_once=None):
+        """
+        Log an error message and raise an exception
+        
+        Args:
+            msg: The error message to log and use for the exception
+            exception_class: The exception class to raise (default: Exception)
+            color: Color for console output (default: "red")
+            print_once: Whether to print only once (default: None)
+        
+        Raises:
+            exception_class: The specified exception with the message
+        """
+        self.error(msg, color=color, print_once=print_once)
+        raise exception_class(msg)
+
+    def critical_and_raise(self, msg, exception_class=Exception, color="red", print_once=None):
+        """
+        Log a critical message and raise an exception
+        
+        Args:
+            msg: The critical message to log and use for the exception
+            exception_class: The exception class to raise (default: Exception)
+            color: Color for console output (default: "red")
+            print_once: Whether to print only once (default: None)
+        
+        Raises:
+            exception_class: The specified exception with the message
+        """
+        self.critical(msg, color=color, print_once=print_once)
+        raise exception_class(msg)
+
+    def warning_and_raise(self, msg, warning_class=UserWarning, color="yellow", print_once=None):
+        """
+        Log a warning message and raise a warning
+        
+        Args:
+            msg: The warning message to log and use for the warning
+            warning_class: The warning class to raise (default: UserWarning)
+            color: Color for console output (default: "yellow")
+            print_once: Whether to print only once (default: None)
+        
+        Raises:
+            warning_class: The specified warning with the message
+        """
+        import warnings
+        self.warning(msg, color=color, print_once=print_once)
+        warnings.warn(msg, warning_class)
 
     def print(self, *args):
         return self.info(" ".join(map(str, args)))

@@ -1,43 +1,70 @@
 
 all: test
 
-venv/:
-	python3 -m venv venv
-	venv/bin/pip install --upgrade pip wheel
+# Check if poetry is installed, install if not
+check-poetry:
+	@which poetry > /dev/null || (echo "Poetry not found. Install with: curl -sSL https://install.python-poetry.org | python3 -" && exit 1)
 
-venv/installed: venv/
-	venv/bin/pip install -e ".[test]"
-	touch venv/installed
+# Install dependencies using poetry
+install: check-poetry
+	poetry install --with test,doc
 
-setup: venv/installed
+# Install only main dependencies
+install-main: check-poetry
+	poetry install
 
-test: setup
-	venv/bin/pytest
+# Install development dependencies
+install-dev: check-poetry
+	poetry install --with test,doc
 
-clean: venv/
-	venv/bin/python3 setup.py clean
-	rm -rf build dist *.egg-info .eggs venv/
+setup: install
 
-venv/bin/mypy: venv/
-	venv/bin/pip install mypy
+test: install
+	poetry run pytest
 
-venv/bin/pycodestyle: venv/
-	venv/bin/pip install pycodestyle
+clean:
+	rm -rf build dist *.egg-info .eggs .venv/ __pycache__/ .pytest_cache/
+	find . -name "*.pyc" -delete
+	find . -name "__pycache__" -type d -exec rm -rf {} +
 
-mypy: venv/bin/mypy
-	venv/bin/mypy pyscilog test
+mypy: install
+	poetry run mypy pyscilog test
 
-pycodestyle: venv/bin/pycodestyle
-	venv/bin/pycodestyle pyscilog test
+pycodestyle: install
+	poetry run pycodestyle pyscilog test
 
-venv/bin/twine: venv/
-	venv/bin/pip install twine
+# Lint with both mypy and pycodestyle
+lint: mypy pycodestyle
 
-twine: venv/bin/twine
-	venv/bin/twine upload dist/*
+# Build distribution packages
+build: install
+	poetry build
 
-bdist_wheel: venv/
-	venv/bin/python setup.py bdist_wheel
+# Publish to PyPI
+publish: build
+	poetry publish
 
-sdist: venv/
-	venv/bin/python setup.py sdist
+# Publish to test PyPI
+publish-test: build
+	poetry publish --repository testpypi
+
+# Development server/shell
+shell: install
+	poetry shell
+
+# Run a command in the poetry environment
+run: install
+	poetry run
+
+# Update dependencies
+update: check-poetry
+	poetry update
+
+# Show dependency information
+show: check-poetry
+	poetry show
+
+# Export requirements.txt (for compatibility)
+export-requirements: install
+	poetry export -f requirements.txt --output requirements.txt --without-hashes
+	poetry export -f requirements.txt --output requirements-dev.txt --with test,doc --without-hashes

@@ -1,38 +1,51 @@
 name: Windows Test
 on:
   push:
-    branches: [ master ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ master ]
+    branches: [ main, master ]
 jobs:
   windows_wheel:
     continue-on-error: true
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       matrix:
-        python-version: [3.6.8, 3.7.9, 3.8.8, 3.9.2]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install choco packages
-        run: |
-           choco install 7zip wget
-           choco install --version ${{ matrix.python-version }} python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
-      - name: Upgrade pip and wheel for all pythons
-        run:  python.exe -m pip install --upgrade pip wheel
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-      - name: Install python libraries
-        run: python.exe -m pip install .[test]
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --with test
 
       - name: Run tests
-        run: pytest.exe
+        run: poetry run pytest
 
-      - name: Run binary wheel
-        run: python.exe setup.py bdist_wheel
+      - name: Build wheel
+        run: poetry build
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         name: Publish binary wheels
         with:
+          name: windows-wheels-${{ matrix.python-version }}
           path: dist/*.whl
