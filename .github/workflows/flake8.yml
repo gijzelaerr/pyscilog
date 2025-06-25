@@ -32,7 +32,10 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --with test
+        run: |
+          poetry install --with test
+          # Fallback: ensure flake8 is available
+          poetry run pip install flake8
 
       - name: Lint with flake8
         run: |
