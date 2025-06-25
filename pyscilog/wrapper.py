@@ -7,7 +7,8 @@ from pyscilog.state import State
 
 state = State()
 log_filter = LogFilter()
-fmt = "%(asctime)s - %(shortname)-18.18s %(subprocess)s%(memory)s%(separator)s%(message)s"
+fmt = ("%(asctime)s - %(shortname)-18.18s %(subprocess)s"
+       "%(memory)s%(separator)s%(message)s")
 datefmt = '%H:%M:%S'  # '%H:%M:%S.%f'
 
 # this will be a null handler
@@ -51,13 +52,18 @@ class LoggerWrapper:
         self.console_handler = logging.StreamHandler(sys.stderr)
         self.console_handler.setFormatter(_console_formatter)
 
-        self.logfile_handler = logging.handlers.MemoryHandler(1, logging.DEBUG, state['file_handler'] or null_handler)
+        target = state['file_handler'] or null_handler
+        self.logfile_handler = logging.handlers.MemoryHandler(
+            1, logging.DEBUG, target)
         self.logfile_handler.setFormatter(_logfile_formatter)
 
         # set verbosity levels
         self._verbose = self._log_verbose = None
-        self.verbosity(verbose if verbose is not None else state['verbosity'])
-        self.log_verbosity(log_verbose if log_verbose is not None else state['log_verbosity'])
+        verb = verbose if verbose is not None else state['verbosity']
+        self.verbosity(verb)
+        log_verb = (log_verbose if log_verbose is not None
+                    else state['log_verbosity'])
+        self.log_verbosity(log_verb)
 
         # other init
         self.logger.addHandler(self.console_handler)
@@ -76,24 +82,29 @@ class LoggerWrapper:
         if set_verb is not None:
             self._log_verbose = set_verb
             self.logfile_handler.setLevel(logging.INFO - set_verb)
-        return self._log_verbose if self._log_verbose is not None else self._verbose
+        return (self._log_verbose if self._log_verbose is not None
+                else self._verbose)
 
     def __call__(self, level, color=None):
         """
-        Function call operator on logger. Use to issue messages at different verbosity levels.
-        E.g. log(2).print("message" will issue a message at level logging.INFO - 2.)
+        Function call operator on logger. Use to issue messages at different
+        verbosity levels.
+        E.g. log(2).print("message" will issue a message at level
+        logging.INFO - 2.)
         An optional color argument will colorize the message.
         Returns:
             A writer object (to which a message may be sent with "<<")
         """
-        # effective verbosity level is either set explicitly when the writer is created, or else use global level
+        # effective verbosity level is either set explicitly when the writer
+        # is created, or else use global level
         return Writer(self.logger, logging.INFO - level, color=color)
 
     def warn(self, msg, color=None, print_once=None):
         """
         Wrapper for log.warn
         """
-        Writer(self.logger, logging.WARN, color=color).write(msg, print_once=print_once)
+        Writer(self.logger, logging.WARN, color=color).write(
+            msg, print_once=print_once)
 
     warning = warn
 
@@ -101,74 +112,82 @@ class LoggerWrapper:
         """
         Wrapper for log.error
         """
-        Writer(self.logger, logging.ERROR, color=color).write(msg, print_once=print_once)
+        Writer(self.logger, logging.ERROR, color=color).write(
+            msg, print_once=print_once)
 
     def info(self, msg, color=None, print_once=None):
         """
         Wrapper for log.info
         """
-        Writer(self.logger, logging.INFO, color=color).write(msg, print_once=print_once)
+        Writer(self.logger, logging.INFO, color=color).write(
+            msg, print_once=print_once)
 
     def critical(self, msg, color=None, print_once=None):
         """
         Wrapper for log.critical
         """
-        Writer(self.logger, logging.CRITICAL, color=color).write(msg, print_once=print_once)
+        Writer(self.logger, logging.CRITICAL, color=color).write(
+            msg, print_once=print_once)
 
     def debug(self, msg, color=None, print_once=None):
         """
         Wrapper for log.debug
         """
-        Writer(self.logger, logging.DEBUG, color=color).write(msg, print_once=print_once)
+        Writer(self.logger, logging.DEBUG, color=color).write(
+            msg, print_once=print_once)
 
     def exception(self, msg, color=None, print_once=None):
         """
         Wrapper for log.exception
         """
-        Writer(self.logger, logging.ERROR, color=color).write(msg, print_once=print_once)
+        Writer(self.logger, logging.ERROR, color=color).write(
+            msg, print_once=print_once)
 
-    def error_and_raise(self, msg, exception_class=Exception, color="red", print_once=None):
+    def error_and_raise(self, msg, exception_class=Exception,
+                        color="red", print_once=None):
         """
         Log an error message and raise an exception
-        
+
         Args:
             msg: The error message to log and use for the exception
             exception_class: The exception class to raise (default: Exception)
             color: Color for console output (default: "red")
             print_once: Whether to print only once (default: None)
-        
+
         Raises:
             exception_class: The specified exception with the message
         """
         self.error(msg, color=color, print_once=print_once)
         raise exception_class(msg)
 
-    def critical_and_raise(self, msg, exception_class=Exception, color="red", print_once=None):
+    def critical_and_raise(self, msg, exception_class=Exception,
+                           color="red", print_once=None):
         """
         Log a critical message and raise an exception
-        
+
         Args:
             msg: The critical message to log and use for the exception
             exception_class: The exception class to raise (default: Exception)
             color: Color for console output (default: "red")
             print_once: Whether to print only once (default: None)
-        
+
         Raises:
             exception_class: The specified exception with the message
         """
         self.critical(msg, color=color, print_once=print_once)
         raise exception_class(msg)
 
-    def warning_and_raise(self, msg, warning_class=UserWarning, color="yellow", print_once=None):
+    def warning_and_raise(self, msg, warning_class=UserWarning,
+                          color="yellow", print_once=None):
         """
         Log a warning message and raise a warning
-        
+
         Args:
             msg: The warning message to log and use for the warning
             warning_class: The warning class to raise (default: UserWarning)
             color: Color for console output (default: "yellow")
             print_once: Whether to print only once (default: None)
-        
+
         Raises:
             warning_class: The specified warning with the message
         """
@@ -179,16 +198,19 @@ class LoggerWrapper:
     def print(self, *args):
         return self.info(" ".join(map(str, args)))
 
-    def write(self, message, level=logging.INFO, verbosity=0, print_once=None, color=None):
+    def write(self, message, level=logging.INFO, verbosity=0,
+              print_once=None, color=None):
         # apply verbosity only to INFO levels
         if level == logging.INFO:
             level -= int(verbosity)
-        Writer(self.logger, level, color=color).write(message, print_once=print_once)
+        Writer(self.logger, level, color=color).write(
+            message, print_once=print_once)
 
 
 def log_to_file(filename, append=False):
     if not state['file_handler']:
-        _file_handler = logging.FileHandler(filename, mode='a' if append else 'w')
+        mode = 'a' if append else 'w'
+        _file_handler = logging.FileHandler(filename, mode=mode)
         _file_handler.setLevel(logging.DEBUG)
         _file_handler.setFormatter(_logfile_formatter)
         # set it as the target for the existing wrappers' handlers

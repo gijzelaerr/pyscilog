@@ -19,20 +19,27 @@ def set_verbosity(verbosity: Union[int, List[int], str, None]):
     elif isinstance(verbosity, (list, tuple)):
         verbosity_list = list(verbosity)
     else:
-        raise TypeError("can't parse verbosity specification of type '{}'".format(type(verbosity)))
-    
+        msg = "can't parse verbosity specification of type '{}'"
+        raise TypeError(msg.format(type(verbosity)))
+
     for element in verbosity_list:
-        if type(element) is int or (isinstance(element, str) and re.match("^[0-9]+$", element)):
+        is_int = type(element) is int
+        is_numeric_str = (isinstance(element, str) and
+                          re.match("^[0-9]+$", element))
+        if is_int or is_numeric_str:
             state['verbosity'] = int(element)
-            state['log'](0, "green").print("set global console verbosity level {}".format(state['verbosity']))
+            msg = "set global console verbosity level {}"
+            state['log'](0, "green").print(msg.format(state['verbosity']))
         elif isinstance(element, str):
             m = re.match("^(.+)=([0-9]+)$", element)
             if not m:
-                raise ValueError("can't parse verbosity specification '{}'".format(element))
+                msg = "can't parse verbosity specification '{}'"
+                raise ValueError(msg.format(element))
             logger = get_logger(m.group(1))
             level = int(m.group(2))
             logger.verbosity(level)
-            logger(0, "green").print("set console verbosity level {}={}".format(m.group(1), level))
+            msg = "set console verbosity level {}={}"
+            logger(0, "green").print(msg.format(m.group(1), level))
 
 
 def get_verbosity(verbosity: Union[List[int], int, str, None]):
@@ -48,18 +55,26 @@ def get_verbosity(verbosity: Union[List[int], int, str, None]):
     elif isinstance(verbosity, (list, tuple)):
         verbosity_list = list(verbosity)
     else:
-        raise TypeError("can't parse verbosity specification of type '{}'".format(type(verbosity)))
-    
+        msg = "can't parse verbosity specification of type '{}'"
+        raise TypeError(msg.format(type(verbosity)))
+
     for element in verbosity_list:
-        if type(element) is int or (isinstance(element, str) and re.match("^[0-9]+$", element)):
+        is_int = type(element) is int
+        is_numeric_str = (isinstance(element, str) and
+                          re.match("^[0-9]+$", element))
+        if is_int or is_numeric_str:
             state['log_verbosity'] = int(element)
             if state['log_verbosity'] is not None:
-                state['log'](0, "green").print("set global log verbosity level {}".format(state['log_verbosity']))
+                level = state['log_verbosity']
+                msg = "set global log verbosity level {}"
+                state['log'](0, "green").print(msg.format(level))
         elif isinstance(element, str):
             m = re.match("^(.+)=([0-9]+)$", element)
             if not m:
-                raise ValueError("can't parse verbosity specification '{}'".format(element))
+                msg = "can't parse verbosity specification '{}'"
+                raise ValueError(msg.format(element))
             logger = get_logger(m.group(1))
             level = int(m.group(2))
             logger.log_verbosity(level)
-            logger(0, "green").print("set log verbosity level {}={}".format(m.group(1), level))
+            msg = "set log verbosity level {}={}"
+            logger(0, "green").print(msg.format(m.group(1), level))

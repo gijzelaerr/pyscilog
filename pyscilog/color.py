@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from pyscilog.state import State
 
-SEPERATOR = "================================{}=================================="
+SEPERATOR = ("================================{}"
+             "==================================")
 
 
 @dataclass
@@ -16,7 +17,9 @@ class ColorMap:
     NOBOLD = '\033[0m'
 
 
-color_dict = dict(red=ColorMap.FAIL, green=ColorMap.OKGREEN, yellow=ColorMap.WARNING, blue=ColorMap.OKBLUE, white="")
+color_dict = dict(red=ColorMap.FAIL, green=ColorMap.OKGREEN,
+                  yellow=ColorMap.WARNING, blue=ColorMap.OKBLUE,
+                  white="")
 
 state = State()
 

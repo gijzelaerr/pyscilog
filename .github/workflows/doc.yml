@@ -37,7 +37,8 @@ jobs:
       - name: Build documentation
         run: |
           if [ -d "doc" ]; then
-            cd doc && poetry run make html
+            # keep CWD at project root so poetry can resolve the virtual-env
+            poetry run make -C doc html
           else
             echo "No doc directory found, skipping documentation build"
           fi

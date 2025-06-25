@@ -6,7 +6,8 @@ from pyscilog import LogFilter
 
 def _sigusr1_handler(signum, frame):
     level = 2 if LogFilter._log_memory == 1 else 1
-    print("pid {} received USR1: memory logging level {}".format(os.getpid(), level))
+    msg = "pid {} received USR1: memory logging level {}"
+    print(msg.format(os.getpid(), level))
     LogFilter.setMemoryLogging(level)
 
 
