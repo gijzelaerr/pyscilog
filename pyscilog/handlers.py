@@ -17,5 +17,8 @@ def _sigusr2_handler(signum, frame):
 
 
 def init_handlers():
-    signal.signal(signal.SIGUSR1, _sigusr1_handler)
-    signal.signal(signal.SIGUSR2, _sigusr2_handler)
+    # SIGUSR1 and SIGUSR2 are not available on Windows
+    if hasattr(signal, 'SIGUSR1'):
+        signal.signal(signal.SIGUSR1, _sigusr1_handler)
+    if hasattr(signal, 'SIGUSR2'):
+        signal.signal(signal.SIGUSR2, _sigusr2_handler)
