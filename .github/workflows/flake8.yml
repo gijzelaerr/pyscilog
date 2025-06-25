@@ -32,9 +32,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          poetry install --with test
-          poetry add --group test flake8
+        run: poetry install --with test
 
       - name: Lint with flake8
         run: |
