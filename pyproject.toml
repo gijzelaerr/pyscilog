@@ -1,0 +1,40 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "pyscilog"
+version = "0.1.2"
+description = "the Python scientific logger"
+authors = ["Gijs Molenaar <gijs@pythonic.nl>"]
+readme = "README.md"
+homepage = "https://github.com/gijzelaerr/pyscilog/"
+repository = "https://github.com/gijzelaerr/pyscilog/"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+packages = [{include = "pyscilog"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+psutil = "^5.0.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^6.0.0"
+mypy = "^0.910"
+pycodestyle = "^2.7.0"
+flake8 = "^4.0.0"
+data-science-types = "^0.2.0"
+
+[tool.poetry.group.doc.dependencies]
+sphinx = "^4.0.0"
+sphinx_rtd_theme = "^1.0.0"
+
+[tool.pycodestyle]
+ignore = ["E501", "E402", "W391", "W292"]
+
+[tool.mypy]
+[[tool.mypy.overrides]]
+module = "psutil"
+ignore_missing_imports = true

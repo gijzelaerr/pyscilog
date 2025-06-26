@@ -3,9 +3,11 @@ import logging
 import logging.handlers
 
 from pyscilog.color import cprint
-from pyscilog.filter import LogFilter, get_subprocess_label, set_subprocess_label
+from pyscilog.filter import (LogFilter, get_subprocess_label,
+                             set_subprocess_label)
 from pyscilog.handlers import _sigusr1_handler, _sigusr2_handler
-from pyscilog.wrapper import LoggerWrapper, datefmt, set_boring, log_to_file
+from pyscilog.wrapper import (LoggerWrapper, datefmt, set_boring,
+                              log_to_file)
 from pyscilog.state import State
 from pyscilog.handlers import init_handlers
 
@@ -15,7 +17,8 @@ init_handlers()
 
 def get_log_filename():
     """
-    Returns log filename if log_to_file has been called previously, None otherwise
+    Returns log filename if log_to_file has been called previously,
+    None otherwise
     """
     if not state['file_handler']:
         return None
@@ -32,7 +35,8 @@ def init(app_name):
         state['app_name'] = app_name
         state['root_logger'] = logging.getLogger(app_name)
         state['root_logger'].setLevel(logging.DEBUG)
-        state['log'] = state['loggers'][''] = LoggerWrapper(state['root_logger'])
+        state['log'] = state['loggers'][''] = LoggerWrapper(
+            state['root_logger'])
 
 
 def get_logger(name, verbose=None, log_verbose=None):

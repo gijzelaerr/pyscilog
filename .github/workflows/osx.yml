@@ -1,36 +1,52 @@
 name: OS X Test
 on:
   push:
-    branches: [ master ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ master ]
+    branches: [ main, master ]
 
 jobs:
   osx_wheel:
-    runs-on: macos-10.15
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install snap7
-        run: brew install snap7
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-      - name: Upgrade pip
-        run: python3 -m pip install --upgrade pip
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-      - name: Install python-snap7
-        run: python3 -m pip install .[test]
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        run: poetry install --with test
 
       - name: Run pytest
-        run: |
-          pytest
+        run: poetry run pytest
 
-      - name: Run binary wheel
-        run: python3 setup.py bdist_wheel
+      - name: Build wheel
+        run: poetry build
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         name: Publish binary wheels
         with:
+          name: macos-wheels-${{ matrix.python-version }}
           path: dist/*.whl
 
 

@@ -16,12 +16,15 @@ class Writer:
         if print_once is not None:
             if print_once in Writer.__print_once_keys:
                 return
-            Writer.__print_once_keys = set(Writer.__print_once_keys.union(set(print_once)))
+            current_keys = Writer.__print_once_keys
+            Writer.__print_once_keys = set(current_keys.union(set(print_once)))
 
         message = message.rstrip()
-        if self.color and message:  # do not colorize empty messages, else "\n" is issued independently
+        # do not colorize empty messages, else "\n" is issued independently
+        if self.color and message:
             message = cprint(message, col=self.color, bold=self.bold)
-        self.logger.log(self.level if level_override is None else level_override, message)
+        level = self.level if level_override is None else level_override
+        self.logger.log(level, message)
 
     def print(self, *args):
         return self.write(" ".join(map(str, args)))

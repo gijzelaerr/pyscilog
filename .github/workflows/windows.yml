@@ -1,38 +1,58 @@
 name: Windows Test
 on:
   push:
-    branches: [ master ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ master ]
+    branches: [ main, master ]
 jobs:
   windows_wheel:
     continue-on-error: true
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       matrix:
-        python-version: [3.6.8, 3.7.9, 3.8.8, 3.9.2]
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install choco packages
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Configure Poetry PATH (Windows)
+        if: runner.os == 'Windows'
         run: |
-           choco install 7zip wget
-           choco install --version ${{ matrix.python-version }} python
+          echo "$env:APPDATA\Python\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$env:USERPROFILE\.local\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
 
-      - name: Upgrade pip and wheel for all pythons
-        run:  python.exe -m pip install --upgrade pip wheel
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Install python libraries
-        run: python.exe -m pip install .[test]
+      - name: Install dependencies
+        run: poetry install --with test
 
       - name: Run tests
-        run: pytest.exe
+        run: poetry run pytest
 
-      - name: Run binary wheel
-        run: python.exe setup.py bdist_wheel
+      - name: Build wheel
+        run: poetry build
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         name: Publish binary wheels
         with:
+          name: windows-wheels-${{ matrix.python-version }}
           path: dist/*.whl

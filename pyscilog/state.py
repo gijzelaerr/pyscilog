@@ -30,7 +30,8 @@ state['loggers'] = {}
 state['root_logger'] = None
 state['log'] = None
 
-# global verbosity levels (used for loggers for which an explicit level is not set)
+# global verbosity levels (used for loggers for which an explicit level
+# is not set)
 state['verbosity'] = 0
 state['log_verbosity'] = None
 
